@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dot Line Puzzle - 10 Easy Stages No Overlap</title>
-  <meta name="viewport" content="width=400,user-scalable=no" />
+  <title>Dot Line – Next Level Example</title>
+  <meta name="viewport" content="width=400,user-scalable=no">
   <style>
     body { background:#15151a;margin:0;display:flex;justify-content:center;align-items:center;height:100vh; }
-    #container { display:flex; flex-direction:column; align-items:center;}
+    #container { display:flex; flex-direction:column; align-items:center; }
     #gameCanvas { background: #222; border: 4px solid #333; touch-action:none; }
     #message { color:#fff; font-size:1.2em; margin-top:10px; min-height:36px;}
     #level { color:#fff; font-size:1.1em; margin-bottom:6px;}
@@ -22,144 +22,42 @@
       transition: background 0.2s;
     }
     #hintBtn:active { background:#2083bb;}
-    #progress {
-      color:#fff;padding:2px 0 7px 0;font-size:1em;letter-spacing:.5px;
-    }
+    #progress { color:#fff;padding:2px 0 7px 0;font-size:1em; }
   </style>
 </head>
 <body>
 <div id="container">
   <div id="progress"></div>
-  <div id="level">Level 1</div>
+  <div id="level"></div>
   <button id="hintBtn">Hint</button>
   <canvas id="gameCanvas" width="400" height="600"></canvas>
-  <div id="message">Connect all the dots!</div>
+  <div id="message"></div>
 </div>
 <script>
 const W=400, H=600, SIZE=5, CELL=W/SIZE;
 const ctx=gameCanvas.getContext('2d');
 
 const LEVEL_LIST = [
-  // Level 1 (super easy, 2 colors lines at bottom)
+  // Level 1
   {
     dots:[
       {x:0,y:4,color:'red'},{x:4,y:4,color:'red'},
-      {x:0,y:0,color:'green'},{x:4,y:0,color:'green'}
+      {x:0,y:0,color:'blue'},{x:4,y:0,color:'blue'}
     ],
     solutionPaths:{
-      red:[{x:0,y:4},{x:4,y:4}],
-      green:[{x:0,y:0},{x:4,y:0}]
+      red:[{x:0,y:4},{x:1,y:4},{x:2,y:4},{x:3,y:4},{x:4,y:4}],
+      blue:[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:4,y:0}]
     }
   },
-  // Level 2 (no crossing, 2 colors)
+  // Level 2
   {
     dots:[
-      {x:0,y:2,color:'orange'},{x:4,y:2,color:'orange'},
-      {x:2,y:0,color:'blue'},{x:2,y:4,color:'blue'}
-    ],
-    solutionPaths:{
-      orange:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2}],
-      blue:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}]
-    }
-  },
-  // Level 3 (corner lines, 2 colors)
-  {
-    dots:[
-      {x:0,y:0,color:'blue'},{x:4,y:4,color:'blue'},
-      {x:0,y:4,color:'red'},{x:4,y:0,color:'red'}
-    ],
-    solutionPaths:{
-      blue:[{x:0,y:0},{x:1,y:1},{x:2,y:2},{x:3,y:3},{x:4,y:4}],
-      red:[{x:0,y:4},{x:1,y:3},{x:2,y:2},{x:3,y:1},{x:4,y:0}]
-    }
-  },
-  // Level 4 (easy 3 paths, no overlap)
-  {
-    dots:[
-      {x:0,y:0,color:'green'},{x:0,y:4,color:'green'},
-      {x:2,y:0,color:'blue'},{x:2,y:4,color:'blue'},
-      {x:4,y:0,color:'red'},{x:4,y:4,color:'red'},
-    ],
-    solutionPaths:{
-      green:[{x:0,y:0},{x:0,y:1},{x:0,y:2},{x:0,y:3},{x:0,y:4}],
-      blue:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}],
-      red:[{x:4,y:0},{x:4,y:1},{x:4,y:2},{x:4,y:3},{x:4,y:4}]
-    }
-  },
-  // Level 5 (3 colors, unique horizontals)
-  {
-    dots:[
-      {x:0,y:1,color:'red'},{x:4,y:1,color:'red'},
-      {x:0,y:3,color:'blue'},{x:4,y:3,color:'blue'},
-      {x:2,y:0,color:'orange'},{x:2,y:4,color:'orange'},
-    ],
-    solutionPaths:{
-      red:[{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:4,y:1}],
-      blue:[{x:0,y:3},{x:1,y:3},{x:2,y:3},{x:3,y:3},{x:4,y:3}],
-      orange:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}]
-    }
-  },
-  // Level 6 (2 vertical, 3 horizontal, none overlap)
-  {
-    dots:[
-      {x:1,y:0,color:'green'},{x:1,y:4,color:'green'},
-      {x:3,y:0,color:'blue'},{x:3,y:4,color:'blue'},
-      {x:0,y:2,color:'red'},{x:4,y:2,color:'red'}
-    ],
-    solutionPaths:{
-      green:[{x:1,y:0},{x:1,y:1},{x:1,y:2},{x:1,y:3},{x:1,y:4}],
-      blue:[{x:3,y:0},{x:3,y:1},{x:3,y:2},{x:3,y:3},{x:3,y:4}],
-      red:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2}]
-    }
-  },
-  // Level 7 (horizontal, vertical, diagonal)
-  {
-    dots:[
-      {x:0,y:0,color:'blue'},{x:4,y:0,color:'blue'},
-      {x:2,y:0,color:'orange'},{x:2,y:4,color:'orange'},
+      {x:0,y:0,color:'orange'},{x:4,y:0,color:'orange'},
       {x:0,y:4,color:'green'},{x:4,y:4,color:'green'}
     ],
     solutionPaths:{
-      blue:[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:4,y:0}],
-      orange:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}],
+      orange:[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:4,y:0}],
       green:[{x:0,y:4},{x:1,y:4},{x:2,y:4},{x:3,y:4},{x:4,y:4}]
-    }
-  },
-  // Level 8 (diagonal and verticals)
-  {
-    dots:[
-      {x:0,y:0,color:'red'},{x:4,y:4,color:'red'},
-      {x:1,y:0,color:'green'},{x:1,y:4,color:'green'},
-      {x:3,y:0,color:'blue'},{x:3,y:4,color:'blue'}
-    ],
-    solutionPaths:{
-      red:[{x:0,y:0},{x:1,y:1},{x:2,y:2},{x:3,y:3},{x:4,y:4}],
-      green:[{x:1,y:0},{x:1,y:1},{x:1,y:2},{x:1,y:3},{x:1,y:4}],
-      blue:[{x:3,y:0},{x:3,y:1},{x:3,y:2},{x:3,y:3},{x:3,y:4}]
-    }
-  },
-  // Level 9 (two colors, snaking lines)
-  {
-    dots:[
-      {x:0,y:2,color:'blue'},{x:4,y:2,color:'blue'},
-      {x:0,y:0,color:'red'},{x:4,y:4,color:'red'}
-    ],
-    solutionPaths:{
-      blue:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2}],
-      red:[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:2,y:1},{x:2,y:3},{x:3,y:3},{x:3,y:4},{x:4,y:4}]
-    }
-  },
-  // Level 10 (non-overlapping snaking 3 color)
-  {
-    dots:[
-      {x:0,y:1,color:'orange'},{x:3,y:1,color:'orange'},
-      {x:0,y:0,color:'green'},{x:3,y:0,color:'green'},
-      {x:2,y:4,color:'red'},{x:4,y:2,color:'red'}
-    ],
-    solutionPaths:{
-      orange:[{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1}],
-      green:[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:3,y:0}],
-      red:[{x:2,y:4},{x:3,y:4},{x:4,y:4},{x:4,y:3},{x:4,y:2}]
     }
   }
 ];
@@ -243,7 +141,6 @@ function handleMove(x,y){
   let last=path[path.length-1];
   if(pointsEqual(last,cell))return;
   if(Math.abs(cell.x-last.x)+Math.abs(cell.y-last.y)==1){
-    // Don't allow overlap with any path or duplicate
     let used=false;
     Object.values(userPaths).forEach(plist=>{
       if(plist.slice(0,-1).some(pt=>pt.x===cell.x&&pt.y===cell.y))used=true;
@@ -269,7 +166,6 @@ function handleEnd(x, y){
   drawing=false;currentColor=null;
 }
 
-// --- Check Win ---
 function checkWin(){
   let win=true;
   Object.keys(userPaths).forEach(color=>{
@@ -288,7 +184,7 @@ function checkWin(){
         currentLevel++;
         loadLevel(currentLevel);
       }else{
-        message.textContent="Congratulations! All 10 stages complete!";
+        message.textContent="Congratulations! All stages complete!";
         document.getElementById("level").textContent="";
         document.getElementById("progress").textContent="";
       }
@@ -296,7 +192,6 @@ function checkWin(){
   }
 }
 
-// --- Hint Button Logic ---
 document.getElementById('hintBtn').onclick=function(){
   if(showHint)return;
   showHint=true;
@@ -305,7 +200,7 @@ document.getElementById('hintBtn').onclick=function(){
   hintTimeout=setTimeout(function(){showHint=false;drawBoard();}, 2200);
 };
 
-// Mouse events
+// Mouse & touch
 gameCanvas.addEventListener('mousedown',function(e){
   e.preventDefault();if(e.button!==0)return;
   const rect=this.getBoundingClientRect();
@@ -326,7 +221,6 @@ gameCanvas.addEventListener('mouseleave',function(e){
   const rect=this.getBoundingClientRect();
   handleEnd(e.clientX-rect.left,e.clientY-rect.top);
 });
-// Touch for mobile
 gameCanvas.addEventListener('touchstart',function(e){
   e.preventDefault();
   if(e.touches.length>0){
