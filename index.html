@@ -2,30 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dot Line Multi-Level Game With Hint</title>
+  <title>Dot Line Puzzle - 10 Easy Stages No Overlap</title>
   <meta name="viewport" content="width=400,user-scalable=no" />
   <style>
-    body { background:#15151a; margin:0; display:flex; justify-content:center; align-items:center; height:100vh; }
+    body { background:#15151a;margin:0;display:flex;justify-content:center;align-items:center;height:100vh; }
     #container { display:flex; flex-direction:column; align-items:center;}
-    #gameCanvas { background: #222; border: 4px solid #333; touch-action:none;}
-    #message { color:#fff; font-size:1.2em; margin-top:10px; min-height:40px;}
+    #gameCanvas { background: #222; border: 4px solid #333; touch-action:none; }
+    #message { color:#fff; font-size:1.2em; margin-top:10px; min-height:36px;}
     #level { color:#fff; font-size:1.1em; margin-bottom:6px;}
     #hintBtn {
-      background: #FA7E1E;
+      background: #36a2eb;
       color: #fff;
       font-size: 1em;
       border: none;
       border-radius: 5px;
-      padding: 8px 18px;
+      padding: 7px 18px;
       margin-bottom:8px;
       cursor: pointer;
       transition: background 0.2s;
     }
-    #hintBtn:active { background:#f58336;}
+    #hintBtn:active { background:#2083bb;}
+    #progress {
+      color:#fff;padding:2px 0 7px 0;font-size:1em;letter-spacing:.5px;
+    }
   </style>
 </head>
 <body>
 <div id="container">
+  <div id="progress"></div>
   <div id="level">Level 1</div>
   <button id="hintBtn">Hint</button>
   <canvas id="gameCanvas" width="400" height="600"></canvas>
@@ -35,126 +39,216 @@
 const W=400, H=600, SIZE=5, CELL=W/SIZE;
 const ctx=gameCanvas.getContext('2d');
 
-// --- Levels setup ---
-const levels = [
-  // Level 1 - same as your screenshot
+const LEVEL_LIST = [
+  // Level 1 (super easy, 2 colors lines at bottom)
   {
-    dots: [
-      {x:0, y:0, color:'red'},    {x:4, y:4, color:'red'},
-      {x:1, y:1, color:'blue'},   {x:4, y:1, color:'blue'},
-      {x:2, y:1, color:'green'},  {x:4, y:2, color:'green'},
-      {x:1, y:3, color:'orange'},{x:3, y:2, color:'orange'}
+    dots:[
+      {x:0,y:4,color:'red'},{x:4,y:4,color:'red'},
+      {x:0,y:0,color:'green'},{x:4,y:0,color:'green'}
     ],
-    solutionPaths: {
-      red:   [{x:0,y:0},{x:0,y:4},{x:4,y:4}],
-      blue:  [{x:1,y:1},{x:4,y:1}],
-      green: [{x:2,y:1},{x:2,y:4},{x:4,y:4},{x:4,y:2}],
-      orange:[{x:1,y:3},{x:3,y:3},{x:3,y:2}]
+    solutionPaths:{
+      red:[{x:0,y:4},{x:4,y:4}],
+      green:[{x:0,y:0},{x:4,y:0}]
     }
   },
-  // Level 2 - sample
+  // Level 2 (no crossing, 2 colors)
   {
-    dots: [
-      {x:0, y:0, color:'red'},   {x:4, y:1, color:'red'},
-      {x:1, y:0, color:'green'}, {x:0, y:4, color:'green'},
-      {x:1, y:1, color:'blue'},  {x:3, y:3, color:'blue'},
-      {x:2, y:3, color:'orange'},{x:4, y:4, color:'orange'}
+    dots:[
+      {x:0,y:2,color:'orange'},{x:4,y:2,color:'orange'},
+      {x:2,y:0,color:'blue'},{x:2,y:4,color:'blue'}
     ],
-    solutionPaths: {
-      red:   [{x:0,y:0},{x:1,y:0},{x:4,y:0},{x:4,y:1}],
-      green: [{x:1,y:0},{x:1,y:2},{x:0,y:2},{x:0,y:4}],
-      blue:  [{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:3,y:3}],
-      orange:[{x:2,y:3},{x:4,y:3},{x:4,y:4}]
+    solutionPaths:{
+      orange:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2}],
+      blue:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}]
+    }
+  },
+  // Level 3 (corner lines, 2 colors)
+  {
+    dots:[
+      {x:0,y:0,color:'blue'},{x:4,y:4,color:'blue'},
+      {x:0,y:4,color:'red'},{x:4,y:0,color:'red'}
+    ],
+    solutionPaths:{
+      blue:[{x:0,y:0},{x:1,y:1},{x:2,y:2},{x:3,y:3},{x:4,y:4}],
+      red:[{x:0,y:4},{x:1,y:3},{x:2,y:2},{x:3,y:1},{x:4,y:0}]
+    }
+  },
+  // Level 4 (easy 3 paths, no overlap)
+  {
+    dots:[
+      {x:0,y:0,color:'green'},{x:0,y:4,color:'green'},
+      {x:2,y:0,color:'blue'},{x:2,y:4,color:'blue'},
+      {x:4,y:0,color:'red'},{x:4,y:4,color:'red'},
+    ],
+    solutionPaths:{
+      green:[{x:0,y:0},{x:0,y:1},{x:0,y:2},{x:0,y:3},{x:0,y:4}],
+      blue:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}],
+      red:[{x:4,y:0},{x:4,y:1},{x:4,y:2},{x:4,y:3},{x:4,y:4}]
+    }
+  },
+  // Level 5 (3 colors, unique horizontals)
+  {
+    dots:[
+      {x:0,y:1,color:'red'},{x:4,y:1,color:'red'},
+      {x:0,y:3,color:'blue'},{x:4,y:3,color:'blue'},
+      {x:2,y:0,color:'orange'},{x:2,y:4,color:'orange'},
+    ],
+    solutionPaths:{
+      red:[{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1},{x:4,y:1}],
+      blue:[{x:0,y:3},{x:1,y:3},{x:2,y:3},{x:3,y:3},{x:4,y:3}],
+      orange:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}]
+    }
+  },
+  // Level 6 (2 vertical, 3 horizontal, none overlap)
+  {
+    dots:[
+      {x:1,y:0,color:'green'},{x:1,y:4,color:'green'},
+      {x:3,y:0,color:'blue'},{x:3,y:4,color:'blue'},
+      {x:0,y:2,color:'red'},{x:4,y:2,color:'red'}
+    ],
+    solutionPaths:{
+      green:[{x:1,y:0},{x:1,y:1},{x:1,y:2},{x:1,y:3},{x:1,y:4}],
+      blue:[{x:3,y:0},{x:3,y:1},{x:3,y:2},{x:3,y:3},{x:3,y:4}],
+      red:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2}]
+    }
+  },
+  // Level 7 (horizontal, vertical, diagonal)
+  {
+    dots:[
+      {x:0,y:0,color:'blue'},{x:4,y:0,color:'blue'},
+      {x:2,y:0,color:'orange'},{x:2,y:4,color:'orange'},
+      {x:0,y:4,color:'green'},{x:4,y:4,color:'green'}
+    ],
+    solutionPaths:{
+      blue:[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:3,y:0},{x:4,y:0}],
+      orange:[{x:2,y:0},{x:2,y:1},{x:2,y:2},{x:2,y:3},{x:2,y:4}],
+      green:[{x:0,y:4},{x:1,y:4},{x:2,y:4},{x:3,y:4},{x:4,y:4}]
+    }
+  },
+  // Level 8 (diagonal and verticals)
+  {
+    dots:[
+      {x:0,y:0,color:'red'},{x:4,y:4,color:'red'},
+      {x:1,y:0,color:'green'},{x:1,y:4,color:'green'},
+      {x:3,y:0,color:'blue'},{x:3,y:4,color:'blue'}
+    ],
+    solutionPaths:{
+      red:[{x:0,y:0},{x:1,y:1},{x:2,y:2},{x:3,y:3},{x:4,y:4}],
+      green:[{x:1,y:0},{x:1,y:1},{x:1,y:2},{x:1,y:3},{x:1,y:4}],
+      blue:[{x:3,y:0},{x:3,y:1},{x:3,y:2},{x:3,y:3},{x:3,y:4}]
+    }
+  },
+  // Level 9 (two colors, snaking lines)
+  {
+    dots:[
+      {x:0,y:2,color:'blue'},{x:4,y:2,color:'blue'},
+      {x:0,y:0,color:'red'},{x:4,y:4,color:'red'}
+    ],
+    solutionPaths:{
+      blue:[{x:0,y:2},{x:1,y:2},{x:2,y:2},{x:3,y:2},{x:4,y:2}],
+      red:[{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:2,y:1},{x:2,y:3},{x:3,y:3},{x:3,y:4},{x:4,y:4}]
+    }
+  },
+  // Level 10 (non-overlapping snaking 3 color)
+  {
+    dots:[
+      {x:0,y:1,color:'orange'},{x:3,y:1,color:'orange'},
+      {x:0,y:0,color:'green'},{x:3,y:0,color:'green'},
+      {x:2,y:4,color:'red'},{x:4,y:2,color:'red'}
+    ],
+    solutionPaths:{
+      orange:[{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:3,y:1}],
+      green:[{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:3,y:0}],
+      red:[{x:2,y:4},{x:3,y:4},{x:4,y:4},{x:4,y:3},{x:4,y:2}]
     }
   }
 ];
 
-let currentLevel=0;
-let dots=[], solutionPaths={}, userPaths={}, currentColor=null, drawing=false, allowMove=true;
+let currentLevel=0, dots=[], solutionPaths={}, userPaths={}, currentColor=null, drawing=false, allowMove=true;
 let showHint=false, hintTimeout=null;
 
 function loadLevel(n){
-  dots=levels[n].dots;
-  solutionPaths=levels[n].solutionPaths;
+  dots=LEVEL_LIST[n].dots;
+  solutionPaths=LEVEL_LIST[n].solutionPaths;
   userPaths={};
   Object.keys(solutionPaths).forEach(c=>userPaths[c]=[]);
   currentColor=null; drawing=false; allowMove=true;
   document.getElementById("level").textContent = "Level "+(n+1);
+  document.getElementById("progress").textContent = 'Stage ' + (n+1) + ' of ' + LEVEL_LIST.length;
   document.getElementById("message").textContent = "Connect all the dots!";
-  showHint=false; if (hintTimeout) clearTimeout(hintTimeout);
+  showHint=false;
+  if(hintTimeout)clearTimeout(hintTimeout);
   drawBoard();
 }
 
 function drawBoard() {
   ctx.clearRect(0,0,W,H);
-  ctx.strokeStyle="#444"; ctx.lineWidth=2;
+  ctx.strokeStyle="#444";ctx.lineWidth=2;
   for(let i=0;i<=SIZE;i++){
     ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(W,i*CELL);ctx.stroke();
     ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,SIZE*CELL);ctx.stroke();
   }
   // Draw hint if needed
-  if (showHint) {
-    Object.keys(solutionPaths).forEach(color => {
-      let path = solutionPaths[color];
-      ctx.save();
-      ctx.globalAlpha = 0.2;
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 18;
+  if(showHint) {
+    Object.keys(solutionPaths).forEach(color=>{
+      let path=solutionPaths[color];
+      ctx.save();ctx.globalAlpha=.22;
+      ctx.strokeStyle=color;ctx.lineWidth=20;ctx.lineCap='round';
       ctx.beginPath();
       path.forEach((pt,i)=>{
-        let cx=pt.x*CELL+CELL/2, cy=pt.y*CELL+CELL/2;
-        if(i===0) ctx.moveTo(cx,cy);
-        else ctx.lineTo(cx,cy);
-      });
-      ctx.stroke();
-      ctx.restore();
+        let cx=pt.x*CELL+CELL/2,cy=pt.y*CELL+CELL/2;
+        if(i===0)ctx.moveTo(cx,cy);else ctx.lineTo(cx,cy);
+      });ctx.stroke();ctx.restore();
     });
   }
-  // User drawn lines
+  // Player paths
   Object.keys(userPaths).forEach(color=>{
-    let path = userPaths[color];
+    let path=userPaths[color];
     if(path.length>1){
-      ctx.strokeStyle = color; ctx.lineWidth = 14; ctx.lineCap = 'round';
+      ctx.strokeStyle=color;ctx.lineWidth=14;ctx.lineCap='round';
       ctx.beginPath();
       path.forEach((pt,i)=>{
-        let cx = pt.x*CELL+CELL/2, cy = pt.y*CELL+CELL/2;
-        if(i==0) ctx.moveTo(cx,cy); else ctx.lineTo(cx,cy);
-      });
-      ctx.stroke();
+        let cx=pt.x*CELL+CELL/2,cy=pt.y*CELL+CELL/2;
+        if(i==0)ctx.moveTo(cx,cy);else ctx.lineTo(cx,cy);
+      });ctx.stroke();
     }
   });
   dots.forEach(d=>{
-    let cx = d.x*CELL+CELL/2, cy = d.y*CELL+CELL/2;
+    let cx=d.x*CELL+CELL/2,cy=d.y*CELL+CELL/2;
     ctx.beginPath();
-    ctx.arc(cx, cy, CELL/4, 0, 2*Math.PI);
-    ctx.fillStyle = d.color;
-    ctx.shadowColor="#000"; ctx.shadowBlur=8;
-    ctx.fill(); ctx.shadowBlur=0; ctx.lineWidth=3; ctx.strokeStyle="#fff"; ctx.stroke();
+    ctx.arc(cx,cy,CELL/4,0,2*Math.PI);
+    ctx.fillStyle=d.color;
+    ctx.shadowColor="#000";ctx.shadowBlur=8;
+    ctx.fill();ctx.shadowBlur=0;
+    ctx.lineWidth=3;ctx.strokeStyle="#fff";ctx.stroke();
   });
 }
 
 function pixelToCell(x,y){return {x:Math.max(0,Math.min(SIZE-1,Math.floor(x/CELL))),y:Math.max(0,Math.min(SIZE-1,Math.floor(y/CELL)))};}
-function pointsEqual(a,b){ return a&&b&&a.x===b.x&&a.y===b.y; }
-function resetPath(color){ userPaths[color]=[]; drawBoard(); }
+function pointsEqual(a,b){return a&&b&&a.x===b.x&&a.y===b.y;}
+function resetPath(color){userPaths[color]=[];drawBoard();}
 function handleStart(x,y){
-  if(!allowMove) return;
-  const cell = pixelToCell(x,y);
-  for(let dot of dots){
-    if(dot.x==cell.x&&dot.y==cell.y){
-      currentColor=dot.color;
-      userPaths[currentColor]=[cell];
-      drawing=true;drawBoard();return;
-    }
-  } currentColor=null;
+  if(!allowMove)return;
+  const cell=pixelToCell(x,y);
+  for(let dot of dots){if(dot.x==cell.x&&dot.y==cell.y){
+    currentColor=dot.color;
+    userPaths[currentColor]=[cell];
+    drawing=true;drawBoard();return;
+  }}currentColor=null;
 }
 function handleMove(x,y){
-  if(!drawing||!currentColor) return;
+  if(!drawing||!currentColor)return;
   const cell=pixelToCell(x,y);
   let path=userPaths[currentColor];
   let last=path[path.length-1];
-  if(pointsEqual(last,cell)) return;
+  if(pointsEqual(last,cell))return;
   if(Math.abs(cell.x-last.x)+Math.abs(cell.y-last.y)==1){
-    if(!path.some(pt=>pt.x===cell.x&&pt.y===cell.y)){
+    // Don't allow overlap with any path or duplicate
+    let used=false;
+    Object.values(userPaths).forEach(plist=>{
+      if(plist.slice(0,-1).some(pt=>pt.x===cell.x&&pt.y===cell.y))used=true;
+    });
+    if(!used) {
       path.push(cell);drawBoard();
     }
   }
@@ -171,49 +265,47 @@ function handleEnd(x, y){
   }else{
     message.textContent="Try again: connect to matching dot!";
     setTimeout(()=>{message.textContent="";},1300);
-    resetPath(currentColor);
-  }
+    resetPath(currentColor);}
   drawing=false;currentColor=null;
 }
+
+// --- Check Win ---
 function checkWin(){
   let win=true;
   Object.keys(userPaths).forEach(color=>{
-    let path=userPaths[color], sol=solutionPaths[color];
-    if(path.length!==sol.length) win=false;
+    let path=userPaths[color],sol=solutionPaths[color];
+    if(path.length!==sol.length)win=false;
     for(let i=0;i<sol.length;i++){
-      if(!path[i]||path[i].x!==sol[i].x||path[i].y!==sol[i].y) win=false;
+      if(!path[i]||path[i].x!==sol[i].x||path[i].y!==sol[i].y)win=false;
     }
   });
-  if (win) {
+  if(win){
     allowMove=false;
-    message.textContent="Level Complete! Next level…";
+    message.textContent="Level Complete! Next stage…";
     setTimeout(()=>{
       showHint=false;
-      if(currentLevel<levels.length-1){
+      if(currentLevel<LEVEL_LIST.length-1){
         currentLevel++;
         loadLevel(currentLevel);
       }else{
-        message.textContent="Congratulations! All levels complete!";
+        message.textContent="Congratulations! All 10 stages complete!";
         document.getElementById("level").textContent="";
+        document.getElementById("progress").textContent="";
       }
-    },1500);
+    },1400);
   }
 }
 
-// -- Hint Button Logic --
-document.getElementById('hintBtn').onclick = function(){
-  if (showHint) return; // Already showing hint
-  showHint = true;
+// --- Hint Button Logic ---
+document.getElementById('hintBtn').onclick=function(){
+  if(showHint)return;
+  showHint=true;
   drawBoard();
-  // Hide hint after 3 seconds
-  if (hintTimeout) clearTimeout(hintTimeout);
-  hintTimeout = setTimeout(function(){
-    showHint = false;
-    drawBoard();
-  }, 3000);
+  if(hintTimeout)clearTimeout(hintTimeout);
+  hintTimeout=setTimeout(function(){showHint=false;drawBoard();}, 2200);
 };
 
-// Mouse
+// Mouse events
 gameCanvas.addEventListener('mousedown',function(e){
   e.preventDefault();if(e.button!==0)return;
   const rect=this.getBoundingClientRect();
@@ -234,7 +326,7 @@ gameCanvas.addEventListener('mouseleave',function(e){
   const rect=this.getBoundingClientRect();
   handleEnd(e.clientX-rect.left,e.clientY-rect.top);
 });
-// Touch (mobile)
+// Touch for mobile
 gameCanvas.addEventListener('touchstart',function(e){
   e.preventDefault();
   if(e.touches.length>0){
@@ -254,7 +346,7 @@ gameCanvas.addEventListener('touchmove',function(e){
 });
 gameCanvas.addEventListener('touchend',function(e){
   e.preventDefault();
-  if(!drawing||!currentColor) return;
+  if(!drawing||!currentColor)return;
   let path=userPaths[currentColor];
   let last=path[path.length-1];
   handleEnd(last.x*CELL+CELL/2,last.y*CELL+CELL/2);
