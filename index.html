@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dot Line Multi-Level Game</title>
+  <title>Dot Line Multi-Level Game With Hint</title>
   <meta name="viewport" content="width=400,user-scalable=no" />
   <style>
     body { background:#15151a; margin:0; display:flex; justify-content:center; align-items:center; height:100vh; }
@@ -10,11 +10,24 @@
     #gameCanvas { background: #222; border: 4px solid #333; touch-action:none;}
     #message { color:#fff; font-size:1.2em; margin-top:10px; min-height:40px;}
     #level { color:#fff; font-size:1.1em; margin-bottom:6px;}
+    #hintBtn {
+      background: #FA7E1E;
+      color: #fff;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      padding: 8px 18px;
+      margin-bottom:8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #hintBtn:active { background:#f58336;}
   </style>
 </head>
 <body>
 <div id="container">
   <div id="level">Level 1</div>
+  <button id="hintBtn">Hint</button>
   <canvas id="gameCanvas" width="400" height="600"></canvas>
   <div id="message">Connect all the dots!</div>
 </div>
@@ -22,9 +35,9 @@
 const W=400, H=600, SIZE=5, CELL=W/SIZE;
 const ctx=gameCanvas.getContext('2d');
 
-// --- Define Levels Here ---
+// --- Levels setup ---
 const levels = [
-  // Level 1 (your original image)
+  // Level 1 - same as your screenshot
   {
     dots: [
       {x:0, y:0, color:'red'},    {x:4, y:4, color:'red'},
@@ -39,7 +52,7 @@ const levels = [
       orange:[{x:1,y:3},{x:3,y:3},{x:3,y:2}]
     }
   },
-  // Level 2 (sample new puzzle you can customize!)
+  // Level 2 - sample
   {
     dots: [
       {x:0, y:0, color:'red'},   {x:4, y:1, color:'red'},
@@ -55,18 +68,20 @@ const levels = [
     }
   }
 ];
-// --------------------------
 
-let currentLevel = 0;
-let dots = [], solutionPaths = {}, userPaths = {}, currentColor = null, drawing = false, allowMove = true;
+let currentLevel=0;
+let dots=[], solutionPaths={}, userPaths={}, currentColor=null, drawing=false, allowMove=true;
+let showHint=false, hintTimeout=null;
+
 function loadLevel(n){
-  dots = levels[n].dots;
-  solutionPaths = levels[n].solutionPaths;
-  userPaths = {};
-  Object.keys(solutionPaths).forEach(c=> userPaths[c]=[]);
+  dots=levels[n].dots;
+  solutionPaths=levels[n].solutionPaths;
+  userPaths={};
+  Object.keys(solutionPaths).forEach(c=>userPaths[c]=[]);
   currentColor=null; drawing=false; allowMove=true;
   document.getElementById("level").textContent = "Level "+(n+1);
   document.getElementById("message").textContent = "Connect all the dots!";
+  showHint=false; if (hintTimeout) clearTimeout(hintTimeout);
   drawBoard();
 }
 
@@ -77,6 +92,25 @@ function drawBoard() {
     ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(W,i*CELL);ctx.stroke();
     ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,SIZE*CELL);ctx.stroke();
   }
+  // Draw hint if needed
+  if (showHint) {
+    Object.keys(solutionPaths).forEach(color => {
+      let path = solutionPaths[color];
+      ctx.save();
+      ctx.globalAlpha = 0.2;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 18;
+      ctx.beginPath();
+      path.forEach((pt,i)=>{
+        let cx=pt.x*CELL+CELL/2, cy=pt.y*CELL+CELL/2;
+        if(i===0) ctx.moveTo(cx,cy);
+        else ctx.lineTo(cx,cy);
+      });
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+  // User drawn lines
   Object.keys(userPaths).forEach(color=>{
     let path = userPaths[color];
     if(path.length>1){
@@ -98,6 +132,7 @@ function drawBoard() {
     ctx.fill(); ctx.shadowBlur=0; ctx.lineWidth=3; ctx.strokeStyle="#fff"; ctx.stroke();
   });
 }
+
 function pixelToCell(x,y){return {x:Math.max(0,Math.min(SIZE-1,Math.floor(x/CELL))),y:Math.max(0,Math.min(SIZE-1,Math.floor(y/CELL)))};}
 function pointsEqual(a,b){ return a&&b&&a.x===b.x&&a.y===b.y; }
 function resetPath(color){ userPaths[color]=[]; drawBoard(); }
@@ -149,10 +184,11 @@ function checkWin(){
       if(!path[i]||path[i].x!==sol[i].x||path[i].y!==sol[i].y) win=false;
     }
   });
-  if(win){
+  if (win) {
     allowMove=false;
     message.textContent="Level Complete! Next level…";
     setTimeout(()=>{
+      showHint=false;
       if(currentLevel<levels.length-1){
         currentLevel++;
         loadLevel(currentLevel);
@@ -163,6 +199,19 @@ function checkWin(){
     },1500);
   }
 }
+
+// -- Hint Button Logic --
+document.getElementById('hintBtn').onclick = function(){
+  if (showHint) return; // Already showing hint
+  showHint = true;
+  drawBoard();
+  // Hide hint after 3 seconds
+  if (hintTimeout) clearTimeout(hintTimeout);
+  hintTimeout = setTimeout(function(){
+    showHint = false;
+    drawBoard();
+  }, 3000);
+};
 
 // Mouse
 gameCanvas.addEventListener('mousedown',function(e){
@@ -212,7 +261,7 @@ gameCanvas.addEventListener('touchend',function(e){
 });
 gameCanvas.addEventListener('contextmenu',function(e){e.preventDefault();});
 window.addEventListener('resize',()=>{drawBoard();});
-// START GAME
+const message=document.getElementById("message");
 loadLevel(currentLevel);
 </script>
 </body>
