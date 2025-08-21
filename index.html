@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Dot Line – Next Level Example</title>
+  <title>Dot Line Puzzle – Mobile Support</title>
   <meta name="viewport" content="width=400,user-scalable=no">
   <style>
     body { background:#15151a;margin:0;display:flex;justify-content:center;align-items:center;height:100vh; }
@@ -122,17 +122,25 @@ function drawBoard() {
   });
 }
 
-function pixelToCell(x,y){return {x:Math.max(0,Math.min(SIZE-1,Math.floor(x/CELL))),y:Math.max(0,Math.min(SIZE-1,Math.floor(y/CELL)))};}
+function pixelToCell(x,y){
+  return {
+    x: Math.max(0, Math.min(SIZE-1, Math.floor(x / CELL))),
+    y: Math.max(0, Math.min(SIZE-1, Math.floor(y / CELL)))
+  };
+}
 function pointsEqual(a,b){return a&&b&&a.x===b.x&&a.y===b.y;}
 function resetPath(color){userPaths[color]=[];drawBoard();}
 function handleStart(x,y){
   if(!allowMove)return;
   const cell=pixelToCell(x,y);
-  for(let dot of dots){if(dot.x==cell.x&&dot.y==cell.y){
-    currentColor=dot.color;
-    userPaths[currentColor]=[cell];
-    drawing=true;drawBoard();return;
-  }}currentColor=null;
+  for(let dot of dots){
+    if(dot.x==cell.x&&dot.y==cell.y){
+      currentColor=dot.color;
+      userPaths[currentColor]=[cell];
+      drawing=true;drawBoard();return;
+    }
+  }
+  currentColor=null;
 }
 function handleMove(x,y){
   if(!drawing||!currentColor)return;
@@ -160,8 +168,8 @@ function handleEnd(x, y){
     userPaths[currentColor][userPaths[currentColor].length-1]={x:endDot.x,y:endDot.y};
     drawBoard();checkWin();
   }else{
-    message.textContent="Try again: connect to matching dot!";
-    setTimeout(()=>{message.textContent="";},1300);
+    document.getElementById("message").textContent="Try again: connect to matching dot!";
+    setTimeout(()=>{document.getElementById("message").textContent="";},1300);
     resetPath(currentColor);}
   drawing=false;currentColor=null;
 }
@@ -177,14 +185,14 @@ function checkWin(){
   });
   if(win){
     allowMove=false;
-    message.textContent="Level Complete! Next stage…";
+    document.getElementById("message").textContent="Level Complete! Next stage…";
     setTimeout(()=>{
       showHint=false;
       if(currentLevel<LEVEL_LIST.length-1){
         currentLevel++;
         loadLevel(currentLevel);
       }else{
-        message.textContent="Congratulations! All stages complete!";
+        document.getElementById("message").textContent="Congratulations! All stages complete!";
         document.getElementById("level").textContent="";
         document.getElementById("progress").textContent="";
       }
@@ -192,6 +200,7 @@ function checkWin(){
   }
 }
 
+// Hint Button
 document.getElementById('hintBtn').onclick=function(){
   if(showHint)return;
   showHint=true;
@@ -200,7 +209,7 @@ document.getElementById('hintBtn').onclick=function(){
   hintTimeout=setTimeout(function(){showHint=false;drawBoard();}, 2200);
 };
 
-// Mouse & touch
+// Mouse
 gameCanvas.addEventListener('mousedown',function(e){
   e.preventDefault();if(e.button!==0)return;
   const rect=this.getBoundingClientRect();
@@ -221,33 +230,35 @@ gameCanvas.addEventListener('mouseleave',function(e){
   const rect=this.getBoundingClientRect();
   handleEnd(e.clientX-rect.left,e.clientY-rect.top);
 });
+
+// Touch for mobile
+let lastTouch = null;
 gameCanvas.addEventListener('touchstart',function(e){
   e.preventDefault();
-  if(e.touches.length>0){
-    const rect=this.getBoundingClientRect();
-    const touch=e.touches[0];
-    handleStart(touch.clientX-rect.left,touch.clientY-rect.top);
-  }
+  const rect=this.getBoundingClientRect();
+  let t=e.touches[0];
+  lastTouch = t; // store
+  handleStart(t.clientX-rect.left,t.clientY-rect.top);
 });
 gameCanvas.addEventListener('touchmove',function(e){
   e.preventDefault();
   if(!drawing)return;
-  if(e.touches.length>0){
-    const rect=this.getBoundingClientRect();
-    const touch=e.touches;
-    handleMove(touch.clientX-rect.left,touch.clientY-rect.top);
-  }
+  const rect=this.getBoundingClientRect();
+  let t=e.touches;
+  lastTouch = t;
+  handleMove(t.clientX-rect.left,t.clientY-rect.top);
 });
 gameCanvas.addEventListener('touchend',function(e){
   e.preventDefault();
-  if(!drawing||!currentColor)return;
-  let path=userPaths[currentColor];
-  let last=path[path.length-1];
-  handleEnd(last.x*CELL+CELL/2,last.y*CELL+CELL/2);
+  // We use last touch position for the end event in most mobile browsers
+  if(!drawing||!currentColor||!lastTouch)return;
+  const rect=gameCanvas.getBoundingClientRect();
+  handleEnd(lastTouch.clientX-rect.left,lastTouch.clientY-rect.top);
+  lastTouch = null;
 });
 gameCanvas.addEventListener('contextmenu',function(e){e.preventDefault();});
 window.addEventListener('resize',()=>{drawBoard();});
-const message=document.getElementById("message");
+
 loadLevel(currentLevel);
 </script>
 </body>
