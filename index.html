@@ -1,30 +1,211 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>View & Edit Google Sheet</title>
+  <meta charset="UTF-8">
+  <title>Dot Line Puzzle - Level 110</title>
+  <meta name="viewport" content="width=400, user-scalable=no" />
   <style>
-    body { font-family: system-ui, Arial, sans-serif; margin: 0; padding: 24px; }
-    .top { display:flex; justify-content:space-between; align-items:center; max-width:1100px; margin:0 auto 12px; }
-    iframe { width: 100%; height: 700px; border: 0; }
-    .btn { padding:10px 16px; border-radius:10px; border:1px solid #ccc; background:#fff; cursor:pointer; }
-    .btn:hover { background:#f6f6f6; }
+    body { background: #15151a; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    #container { display: flex; flex-direction: column; align-items: center; }
+    #gameCanvas { background: #222; border: 4px solid #333; touch-action: none; }
+    #message { color: #fff; font-size: 1.2em; margin-top: 10px; min-height: 40px;}
   </style>
 </head>
 <body>
-  <div class="top">
-    <h2>Google Sheet (View)</h2>
-    <button class="btn" onclick="window.open('https://docs.google.com/spreadsheets/d/1mrR1MYEWLy-L2yEa9cMdXS33-71bIT4UpMoIia8FKPs/edit', '_blank')">
-      ✏️ Edit in Google Sheets
-    </button>
-  </div>
+<div id="container">
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <div id="message">Connect all the dots!</div>
+</div>
+<script>
+const W = 400, H = 600, SIZE = 5;
+const CELL = W / SIZE;
+const ctx = gameCanvas.getContext('2d');
 
-  <!-- Safe viewer embed -->
-  <iframe
-    src="https://docs.google.com/spreadsheets/d/1mrR1MYEWLy-L2yEa9cMdXS33-71bIT4UpMoIia8FKPs/gviz/tq?tq=select%20*&tqx=out:html&gid=0"
-    loading="lazy"
-    referrerpolicy="no-referrer"
-    sandbox="allow-same-origin allow-scripts allow-forms allow-popups">
-  </iframe>
+// Dots and solution
+const dots = [
+  {x:0, y:0, color:'red'},    {x:4, y:4, color:'red'},
+  {x:1, y:1, color:'blue'},   {x:4, y:1, color:'blue'},
+  {x:2, y:1, color:'green'},  {x:4, y:2, color:'green'},
+  {x:1, y:3, color:'orange'},{x:3, y:2, color:'orange'}
+];
+const solutionPaths = {
+  red:   [{x:0, y:0}, {x:0, y:4}, {x:4, y:4}],
+  blue:  [{x:1, y:1}, {x:4, y:1}],
+  green: [{x:2, y:1}, {x:2, y:4}, {x:4, y:4}, {x:4, y:2}],
+  orange:[{x:1, y:3}, {x:3, y:3}, {x:3, y:2}]
+};
+let userPaths = { red: [], blue: [], green: [], orange: [] };
+let currentColor = null;
+let drawing = false;
+let allowMove = true;
+
+function drawBoard() {
+  ctx.clearRect(0,0,W,H);
+  // Grid
+  ctx.strokeStyle="#444"; ctx.lineWidth=2;
+  for (let i=0;i<=SIZE;i++) {
+    ctx.beginPath(); ctx.moveTo(0,i*CELL); ctx.lineTo(W,i*CELL); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(i*CELL,0); ctx.lineTo(i*CELL,SIZE*CELL); ctx.stroke();
+  }
+  // Draw user lines
+  Object.keys(userPaths).forEach(color=>{
+    let path = userPaths[color];
+    if(path.length>1){
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      path.forEach((pt,i)=>{
+        let cx = pt.x*CELL+CELL/2, cy = pt.y*CELL+CELL/2;
+        if(i==0) ctx.moveTo(cx,cy); else ctx.lineTo(cx,cy);
+      });
+      ctx.stroke();
+    }
+  });
+  // Draw dots
+  dots.forEach(d=>{
+    let cx = d.x*CELL+CELL/2, cy = d.y*CELL+CELL/2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, CELL/4, 0, 2*Math.PI);
+    ctx.fillStyle = d.color;
+    ctx.shadowColor = "#000";
+    ctx.shadowBlur = 8;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 3;
+    ctx.strokeStyle="#fff";
+    ctx.stroke();
+  });
+}
+drawBoard();
+
+function pixelToCell(x, y) {
+  return {
+    x: Math.max(0, Math.min(SIZE-1, Math.floor(x / CELL))),
+    y: Math.max(0, Math.min(SIZE-1, Math.floor(y / CELL)))
+  };
+}
+
+function pointsEqual(a,b) { return a && b && a.x===b.x && a.y===b.y; }
+
+function resetPath(color) { userPaths[color] = []; drawBoard(); }
+
+function handleStart(x, y) {
+  if (!allowMove) return;
+  const cell = pixelToCell(x, y);
+  for (let dot of dots) {
+    if (dot.x == cell.x && dot.y == cell.y) {
+      currentColor = dot.color;
+      userPaths[currentColor] = [cell];
+      drawing = true;
+      drawBoard();
+      return;
+    }
+  }
+  currentColor = null;
+}
+function handleMove(x, y) {
+  if (!drawing || !currentColor) return;
+  const cell = pixelToCell(x, y);
+  let path = userPaths[currentColor];
+  let last = path[path.length-1];
+  if (pointsEqual(last, cell)) return;
+  if (Math.abs(cell.x-last.x)+Math.abs(cell.y-last.y)==1) {
+    // Don't duplicate back on ourselves
+    if (!path.some(pt=>pt.x===cell.x && pt.y===cell.y)) {
+      path.push(cell);
+      drawBoard();
+    }
+  }
+}
+function handleEnd(x, y) {
+  if (!drawing || !currentColor) return;
+  const cell = pixelToCell(x, y);
+  let dotsForColor = dots.filter(d=>d.color==currentColor);
+  let endDot = dotsForColor[1]; // finish at the second dot
+  let path = userPaths[currentColor];
+  if (cell.x == endDot.x && cell.y == endDot.y) {
+    // lock in path
+    userPaths[currentColor][userPaths[currentColor].length-1] = {x:endDot.x, y:endDot.y};
+    drawBoard();
+    checkWin();
+  } else {
+    message.textContent = "Try again: connect dot to same color!";
+    setTimeout(()=>{message.textContent="";}, 1500);
+    resetPath(currentColor);
+  }
+  drawing = false;
+  currentColor = null;
+}
+
+function checkWin() {
+  let win = true;
+  Object.keys(userPaths).forEach(color=>{
+    let path=userPaths[color], sol=solutionPaths[color];
+    if(path.length !== sol.length) win=false;
+    for(let i=0;i<sol.length;i++){
+      if(!path[i] || path[i].x!==sol[i].x || path[i].y!==sol[i].y) win=false;
+    }
+  });
+  if (win) {
+    message.textContent="Congratulations! Puzzle Solved 🎉";
+    allowMove=false;
+  }
+}
+
+// === Mouse Events ===
+gameCanvas.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  if (e.button !== 0) return;
+  const rect = this.getBoundingClientRect();
+  handleStart(e.clientX - rect.left, e.clientY - rect.top);
+});
+gameCanvas.addEventListener('mousemove', function(e) {
+  if (!drawing) return;
+  const rect = this.getBoundingClientRect();
+  handleMove(e.clientX - rect.left, e.clientY - rect.top);
+});
+gameCanvas.addEventListener('mouseup', function(e) {
+  if (!drawing) return;
+  const rect = this.getBoundingClientRect();
+  handleEnd(e.clientX - rect.left, e.clientY - rect.top);
+});
+gameCanvas.addEventListener('mouseleave', function(e) {
+  if (!drawing) return;
+  const rect = this.getBoundingClientRect();
+  handleEnd(e.clientX - rect.left, e.clientY - rect.top);
+});
+
+// === Touch Events for Mobile ===
+gameCanvas.addEventListener('touchstart', function(e){
+  e.preventDefault();
+  if (e.touches.length > 0) {
+    const rect = this.getBoundingClientRect();
+    const touch = e.touches[0];
+    handleStart(touch.clientX - rect.left, touch.clientY - rect.top);
+  }
+});
+gameCanvas.addEventListener('touchmove', function(e){
+  e.preventDefault();
+  if (!drawing) return;
+  if (e.touches.length > 0) {
+    const rect = this.getBoundingClientRect();
+    const touch = e.touches;
+    handleMove(touch.clientX - rect.left, touch.clientY - rect.top);
+  }
+});
+gameCanvas.addEventListener('touchend', function(e){
+  e.preventDefault();
+  if (!drawing || !currentColor) return;
+  // Use the last point in the path for touch end
+  let path = userPaths[currentColor];
+  let last = path[path.length-1];
+  handleEnd(last.x*CELL + CELL/2, last.y*CELL + CELL/2);
+});
+
+gameCanvas.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+
+window.addEventListener('resize', ()=>{drawBoard();});
+</script>
 </body>
 </html>
