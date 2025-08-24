@@ -1,737 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>UNO – 2 Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #1e1f24;
-      --panel: #111319;
-      --ink: #eaeaea;
-      --muted: #aeb2bd;
-      --red: #e74c3c;
-      --yellow: #f1c40f;
-      --green: #27ae60;
-      --blue: #2980b9;
-      --wild: #444;
-      --card-w: 72px;
-      --card-h: 108px;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: radial-gradient(1200px 800px at 50% 20%, #2b2f3a 0%, #14161c 60%, #0b0c11 100%);
-      color: var(--ink);
-      font-family: system-ui, Segoe UI, Roboto, Arial, sans-serif;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px;
-      background: #0b0c11;
-      border-bottom: 1px solid #222;
-    }
-
-    h1 {
-      font-size: 18px;
-      margin: 0;
-      letter-spacing: .5px;
-    }
-
-    .btn {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 10px;
-      background: #3a7afe;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 600;
-      box-shadow: 0 6px 18px rgba(58,122,254,.25);
-    }
-
-    .btn:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    main {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .table {
-      display: grid;
-      gap: 16px;
-      grid-template-rows: auto auto 1fr auto;
-    }
-
-    .status {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .pill {
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #171923;
-      border: 1px solid #24283a;
-      color: #d7dbef;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .zone {
-      padding: 10px;
-      background: rgba(255,255,255,.02);
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: 16px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
-    }
-
-    .zone h3 {
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      font-weight: 700;
-      color: #c9cfe8;
-      text-transform: uppercase;
-      letter-spacing: .8px;
-    }
-
-    .hand {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    /* Card Styles */
-    .card {
-      position: relative;
-      width: var(--card-w);
-      height: var(--card-h);
-      border-radius: 14px;
-      border: 2px solid #000;
-      box-shadow: 0 10px 20px rgba(0,0,0,.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      user-select: none;
-      transform: translateZ(0);
-      transition: transform .15s ease, box-shadow .15s ease;
-      outline: 0 solid transparent;
-    }
-
-    .card.face:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 26px rgba(0,0,0,.48);
-    }
-
-    .face.red { background: var(--red); color: #fff; }
-    .face.yellow { background: var(--yellow); color: #111; }
-    .face.green { background: var(--green); color: #fff; }
-    .face.blue { background: var(--blue); color: #fff; }
-    .face.wild {
-      background: linear-gradient(135deg, #2a2a2a 0%, #555 100%);
-      color: #fff;
-      border-color: #000;
-    }
-
-    .val {
-      font-size: 36px;
-      line-height: 1;
-      filter: drop-shadow(0 2px 0 rgba(0,0,0,.35));
-    }
-
-    .corner {
-      position: absolute;
-      font-size: 14px;
-      opacity: .9;
-      transform: rotate(-8deg);
-      top: 6px;
-      left: 7px;
-    }
-
-    .corner.bottom {
-      top: auto;
-      left: auto;
-      bottom: 6px;
-      right: 7px;
-      transform: rotate(172deg);
-    }
-
-    .playable {
-      box-shadow: 0 0 0 3px #fff, 0 0 18px #fff8;
-      animation: pulse 1s infinite alternate;
-    }
-
-    @keyframes pulse {
-      from { filter: brightness(1); }
-      to { filter: brightness(1.15); }
-    }
-
-    /* Center discard area */
-    .center {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      padding: 12px 8px;
-    }
-
-    .stack {
-      display: flex;
-      gap: 0;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .stack .shadow {
-      width: var(--card-w);
-      height: var(--card-h);
-      border-radius: 14px;
-      border: 2px solid #000;
-      background: rgba(255,255,255,.04);
-      transform: translate(10px, 6px) rotate(-3deg);
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      padding: 6px;
-      flex-wrap: wrap;
-    }
-
-    .back {
-      background: linear-gradient(145deg, #bd0c0c 0%, #e01818 40%, #b10f0f 100%);
-      overflow: hidden;
-    }
-
-    .back::before {
-      content: "";
-      position: absolute;
-      inset: -18% -25%;
-      border-radius: 50%;
-      background: radial-gradient(ellipse at center, #ffe56a 0%, #ffd93a 60%, #ffbe00 100%);
-      transform: rotate(-18deg);
-      box-shadow: 0 0 0 4px #000 inset, 0 0 26px rgba(0,0,0,.55) inset;
-      opacity: .92;
-    }
-
-    .back::after {
-      content: "UNO";
-      position: absolute;
-      inset: auto;
-      font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-      font-size: 38px;
-      letter-spacing: 1px;
-      color: #000;
-      text-shadow:
-        2px 2px 0 #ffd200,
-        -2px -2px 0 #ffd200,
-        2px -2px 0 #ffd200,
-        -2px 2px 0 #ffd200;
-      transform: rotate(-18deg);
-      left: 18px;
-      bottom: 14px;
-    }
-
-    .face.wild .slash {
-      position: absolute;
-      width: 70%;
-      height: 70%;
-      border-radius: 14px;
-      transform: rotate(-18deg);
-      background: linear-gradient(135deg, transparent 0 44%, #000 44% 56%, transparent 56%),
-        linear-gradient(45deg, #e74c3c 0 25%, #f1c40f 25% 50%, #27ae60 50% 75%, #2980b9 75% 100%);
-      box-shadow: 0 0 0 2px #000 inset;
-      opacity: .9;
-    }
-
-    .dot {
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      border: 3px solid #000;
-      cursor: pointer;
-    }
-
-    .dot.red { background: var(--red); }
-    .dot.yellow { background: var(--yellow); }
-    .dot.green { background: var(--green); }
-    .dot.blue { background: var(--blue); }
-
-    .dialog-popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%,-50%);
-      background: #10131a;
-      color: #e8ebff;
-      border-radius: 14px;
-      padding: 22px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.5);
-      max-width: 300px;
-      z-index: 9999;
-      text-align: center;
-    }
-
-    .dialog-popup h2 {
-      margin-top: 0;
-    }
-
-    .dialog-popup button {
-      margin-top: 12px;
-    }
-
-    @media (max-width: 480px) {
-      .card {
-        width: 54px;
-        height: 80px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Candy Crush Clone</title>
+<style>
+  body{margin:0;background:#222;font-family:sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center}
+  h1{margin:10px}
+  #hud{display:flex;gap:20px;font-size:18px;margin:10px}
+  #board{display:grid;grid-template-columns:repeat(9,55px);grid-template-rows:repeat(9,55px);gap:3px;margin-top:10px}
+  .cell{width:55px;height:55px;border-radius:12px;cursor:pointer;box-shadow:0 0 6px #000;transition:transform 0.2s}
+  .c0{background:#e63946}
+  .c1{background:#f1c40f}
+  .c2{background:#2ecc71}
+  .c3{background:#3498db}
+  .c4{background:#9b59b6}
+  .c5{background:#ff7f50}
+  #popup{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:10}
+  #popup div{background:#fff;color:#000;padding:20px;border-radius:10px;text-align:center}
+  button{padding:10px 20px;font-size:16px;border:none;border-radius:8px;background:#3498db;color:#fff;cursor:pointer}
+</style>
 </head>
 <body>
-  <header>
-    <h1>UNO – 2 Players</h1>
-    <div class="row">
-      <button id="newGameBtn" class="btn">New Game</button>
-    </div>
-  </header>
+<h1>Candy Crush Clone</h1>
+<div id="hud">
+  <div id="stage">Stage: 1</div>
+  <div id="score">Score: 0</div>
+  <div id="moves">Moves: 20</div>
+</div>
+<div id="board"></div>
+<div id="popup"><div>
+  <h2 id="popupMsg">You Win!</h2>
+  <button onclick="nextStage()">Next Stage</button>
+</div></div>
 
-  <main>
-    <div class="table">
-      <div class="status">
-        <span class="pill">Turn: <b id="turnLabel">—</b></span>
-        <span class="pill">Color: <b id="currentColor">—</b></span>
-        <span class="pill">Top: <b id="currentValue">—</b></span>
-        <span class="pill">Penalty: <b id="penaltyLabel">0</b></span>
-      </div>
+<script>
+const rows=9, cols=9, types=6;
+let board=[], score=0, stage=1, target=500, moves=20;
+const boardEl=document.getElementById("board");
+const scoreEl=document.getElementById("score");
+const stageEl=document.getElementById("stage");
+const movesEl=document.getElementById("moves");
+const popup=document.getElementById("popup");
+const popupMsg=document.getElementById("popupMsg");
 
-      <div class="zone">
-        <h3>Bot Hand <span id="botCount" class="count-pill">0</span></h3>
-        <div id="botHand" class="hand"></div>
-      </div>
+// sounds
+const sndSwap=new Audio("https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg");
+const sndMatch=new Audio("https://actions.google.com/sounds/v1/cartoon/pop.ogg");
+const sndWin=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+const sndLose=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
 
-      <div class="center">
-        <div class="stack">
-          <div class="shadow"></div>
-          <div id="topCard" class="card face wild">
-            <div class="slash"></div>
-            <div class="corner">•</div>
-            <div class="val">—</div>
-            <div class="corner bottom">•</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="zone">
-        <div class="row" style="justify-content:space-between">
-          <h3>Your Hand <span id="youCount" class="count-pill">0</span><span id="youUno" class="uno-tag" style="display:none">UNO!</span></h3>
-          <div class="actions">
-            <button id="drawBtn" class="btn">Draw</button>
-            <button id="passBtn" class="btn">Pass</button>
-          </div>
-        </div>
-        <div id="myHand" class="hand"></div>
-        <div class="note">You can <span class="kbd">Draw</span> once per turn. <b>Pass</b> is only allowed after you draw.</div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Wild card color picker -->
-  <dialog id="colorModal">
-    <h3>Choose a color</h3>
-    <div class="picker">
-      <button class="dot red" data-color="red" aria-label="Red"></button>
-      <button class="dot yellow" data-color="yellow" aria-label="Yellow"></button>
-      <button class="dot green" data-color="green" aria-label="Green"></button>
-      <button class="dot blue" data-color="blue" aria-label="Blue"></button>
-    </div>
-  </dialog>
-
-  <!-- Win/Loss Popup -->
-  <div id="endPopup" class="dialog-popup" style="display: none;">
-    <h2 id="popupMessage">You Win!</h2>
-    <button id="playAgainBtn" class="btn">Play Again</button>
-  </div>
-
-  <script>
-    // Constants
-    const COLORS = ["red","yellow","green","blue"];
-    const VALUES = ["0","1","2","3","4","5","6","7","8","9","SKIP","+2","REVERSE"];
-    const ACTIONS = new Set(["SKIP","+2","REVERSE","WILD","WILD4"]);
-
-    // Game State
-    let state = {};
-    let hasDrawn = false;
-    let hasPassed = false;
-    let pendingDraw = 0;
-    let skipNext = false;
-
-    // Setup
-    function createDeck(){
-      const deck = [];
-      for(const c of COLORS){
-        for(const v of VALUES){
-          deck.push({color:c, value:v});
-          if(v !== "0") deck.push({color:c, value:v});
-        }
-      }
-      for(let i=0;i<4;i++){
-        deck.push({color:"wild", value:"WILD"});
-        deck.push({color:"wild", value:"WILD4"});
-      }
-      return shuffle(deck);
+function init(){
+  score=0; moves=20;
+  board=[];
+  for(let r=0;r<rows;r++){
+    board[r]=[];
+    for(let c=0;c<cols;c++){
+      do{ board[r][c]=rand(); }while(hasMatchAt(r,c));
     }
+  }
+  render();
+}
 
-    function shuffle(a){
-      for(let i=a.length-1;i>0;i--){
-        const j=Math.floor(Math.random()*(i+1));
-        [a[i],a[j]]=[a[j],a[i]];
-      }
-      return a;
+function rand(){ return Math.floor(Math.random()*types); }
+function hasMatchAt(r,c){
+  let v=board[r][c];
+  return (c>=2 && board[r][c-1]===v && board[r][c-2]===v) ||
+         (r>=2 && board[r-1][c]===v && board[r-2][c]===v);
+}
+
+function render(){
+  boardEl.innerHTML="";
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      let d=document.createElement("div");
+      d.className="cell c"+board[r][c];
+      d.dataset.r=r; d.dataset.c=c;
+      enableDrag(d);
+      boardEl.appendChild(d);
     }
+  }
+  scoreEl.textContent="Score: "+score+" / "+target;
+  stageEl.textContent="Stage: "+stage;
+  movesEl.textContent="Moves: "+moves;
+}
 
-    function newGame(){
-      const deck = createDeck();
-      const hands = [[],[]];
-      for(let i=0;i<7;i++){
-        hands[0].push(deck.pop());
-        hands[1].push(deck.pop());
-      }
-      let first = deck.pop();
-      while(first.color === "wild"){
-        deck.unshift(first);
-        first = deck.pop();
-      }
-      state = {
-        hands,
-        draw: deck,
-        discard:[first],
-        turn:0,
-        color:first.color,
-        current:first
-      };
-      hasDrawn = false;
-      hasPassed = false;
-      pendingDraw = 0;
-      skipNext = false;
+let selected=null;
+function cellClick(r,c,el){
+  if(!selected){ selected={r,c,el}; el.style.outline="3px solid #fff"; return; }
+  let r2=selected.r,c2=selected.c;
+  selected.el.style.outline="";
+  if(Math.abs(r-r2)+Math.abs(c-c2)===1){
+    swap(r,c,r2,c2); sndSwap.play(); moves--;
+    if(checkMatches().length>0) resolve(); else swap(r,c,r2,c2);
+  }
+  selected=null; render(); checkGame();
+}
 
-      hidePopup();
-      render();
+// drag drop
+function enableDrag(el){
+  el.draggable=true;
+  el.ondragstart=e=>{selected={r:parseInt(el.dataset.r),c:parseInt(el.dataset.c),el};};
+  el.ondragover=e=>e.preventDefault();
+  el.ondrop=e=>{
+    let r=parseInt(el.dataset.r),c=parseInt(el.dataset.c);
+    let r2=selected.r,c2=selected.c;
+    if(Math.abs(r-r2)+Math.abs(c-c2)===1){
+      swap(r,c,r2,c2); sndSwap.play(); moves--;
+      if(checkMatches().length>0) resolve(); else swap(r,c,r2,c2);
     }
+    selected=null; render(); checkGame();
+  };
+  el.onclick=()=>cellClick(parseInt(el.dataset.r),parseInt(el.dataset.c),el);
+}
 
-    // Turn Mechanics
-    function canPlay(card){
-      return card.color === "wild" || card.color === state.color || card.value === state.current.value;
+function swap(r1,c1,r2,c2){ let t=board[r1][c1]; board[r1][c1]=board[r2][c2]; board[r2][c2]=t; }
+
+function checkMatches(){
+  let matches=[];
+  for(let r=0;r<rows;r++){
+    let run=1;
+    for(let c=1;c<=cols;c++){
+      if(c<cols && board[r][c]===board[r][c-1]) run++;
+      else{ if(run>=3) for(let k=0;k<run;k++) matches.push({r,c:c-1-k}); run=1; }
     }
-
-    function playCard(index){
-      if(state.turn !== 0) return;
-      const card = state.hands[0][index];
-      if(!canPlay(card)) return;
-      if(card.color === "wild"){
-        openColorPicker(chosen => {
-          commitPlay(0, index, card, chosen);
-        });
-      } else {
-        commitPlay(0, index, card, card.color);
-      }
+  }
+  for(let c=0;c<cols;c++){
+    let run=1;
+    for(let r=1;r<=rows;r++){
+      if(r<rows && board[r][c]===board[r-1][c]) run++;
+      else{ if(run>=3) for(let k=0;k<run;k++) matches.push({r:r-1-k,c}); run=1; }
     }
+  }
+  return matches;
+}
 
-    function commitPlay(player, cardIndex, card, nextColor){
-      state.current = card;
-      state.color = nextColor;
-      state.discard.push(card);
-      state.hands[player].splice(cardIndex,1);
-      applyActionEffects(card, player);
-      if(!checkWin()) nextTurn();
+function resolve(){
+  let matches=checkMatches();
+  if(matches.length===0){ checkGame(); return; }
+  matches.forEach(m=>{ board[m.r][m.c]=null; score+=10; });
+  sndMatch.play();
+  // collapse
+  for(let c=0;c<cols;c++){
+    let arr=[];
+    for(let r=rows-1;r>=0;r--) if(board[r][c]!=null) arr.push(board[r][c]);
+    for(let r=rows-1;r>=0;r--){
+      board[r][c]=arr.shift() ?? rand();
     }
+  }
+  render();
+  setTimeout(resolve,200);
+}
 
-    function applyActionEffects(card){
-      if(card.value === "+2"){ pendingDraw += 2; skipNext = true; }
-      else if(card.value === "REVERSE"){ skipNext = true; }
-      else if(card.value === "SKIP"){ skipNext = true; }
-      else if(card.value === "WILD4"){ pendingDraw += 4; skipNext = true; }
-    }
+function checkGame(){
+  if(score>=target){ win(); }
+  else if(moves<=0){ lose(); }
+}
 
-    function ensureDeck(){
-      if(state.draw.length === 0){
-        const top = state.discard.pop();
-        state.draw = shuffle(state.discard);
-        state.discard = [top];
-      }
-    }
-
-    function drawCards(player, n){
-      for(let i=0;i<n;i++){
-        ensureDeck();
-        if(state.draw.length === 0) break;
-        state.hands[player].push(state.draw.pop());
-      }
-    }
-
-    function nextTurn(){
-      state.turn = (state.turn + 1) % 2;
-      hasDrawn = false;
-      hasPassed = false;
-
-      if(pendingDraw > 0){
-        drawCards(state.turn, pendingDraw);
-        pendingDraw = 0;
-        render();
-        setTimeout(() => {
-          state.turn = (state.turn + 1) % 2;
-          render();
-          if(state.turn === 1) setTimeout(botTurnWrapper, 450);
-        }, 500);
-        updatePenaltyLabel();
-        return;
-      }
-
-      if(skipNext){
-        skipNext = false;
-        render();
-        setTimeout(() => {
-          state.turn = (state.turn + 1) % 2;
-          render();
-          if(state.turn === 1) setTimeout(botTurnWrapper, 450);
-        }, 400);
-        return;
-      }
-
-      render();
-      if(state.turn === 1) setTimeout(botTurnWrapper, 450);
-    }
-
-    function botTurnWrapper(){
-      if(checkWin()) return;
-      botPlay();
-    }
-
-    function botPlay(){
-      const hand = state.hands[1];
-      const idx = hand.findIndex(c => canPlay(c));
-      if(idx >= 0){
-        const card = hand[idx];
-        const color = (card.color === "wild") ? botChooseColor() : card.color;
-        state.current = card;
-        state.color = color;
-        state.discard.push(card);
-        hand.splice(idx, 1);
-        applyActionEffects(card);
-        if(!checkWin()) {
-          render();
-          setTimeout(nextTurn, 600);
-        }
-        return;
-      }
-
-      ensureDeck();
-      if(state.draw.length){
-        const newCard = state.draw.pop();
-        hand.push(newCard);
-        if(canPlay(newCard)){
-          const color = (newCard.color === "wild") ? botChooseColor() : newCard.color;
-          state.current = newCard;
-          state.color = color;
-          state.discard.push(newCard);
-          hand.splice(hand.length - 1, 1);
-          applyActionEffects(newCard);
-          if(!checkWin()) {
-            render();
-            setTimeout(nextTurn, 600);
-          }
-          return;
-        }
-      }
-
-      render();
-      setTimeout(nextTurn, 400);
-    }
-
-        function botChooseColor(){
-      const count = { red:0, yellow:0, green:0, blue:0 };
-      for(const c of state.hands[1]){
-        if(c.color !== "wild") count[c.color]++;
-      }
-      // Pick color with highest count, or red default
-      let maxColor = "red";
-      let maxCount = 0;
-      for(const c of COLORS){
-        if(count[c] > maxCount){
-          maxCount = count[c];
-          maxColor = c;
-        }
-      }
-      return maxColor;
-    }
-
-    // Render UI
-    function render(){
-      // Update counts
-      document.getElementById("botCount").textContent = state.hands[1].length;
-      document.getElementById("youCount").textContent = state.hands[0].length;
-
-      // Update turn label
-      document.getElementById("turnLabel").textContent = state.turn === 0 ? "You" : "Bot";
-
-      // Update current color and value
-      const currentColorEl = document.getElementById("currentColor");
-      const currentValueEl = document.getElementById("currentValue");
-      currentColorEl.textContent = capitalize(state.color);
-      currentColorEl.style.color = state.color === "wild" ? "black" : state.color;
-      currentValueEl.textContent = state.current.value;
-
-      // Update penalty label
-      updatePenaltyLabel();
-
-      // Render bot hand (hidden cards)
-      const botHandDiv = document.getElementById("botHand");
-      botHandDiv.innerHTML = "";
-      for(let i=0; i<state.hands[1].length; i++){
-        const cardDiv = document.createElement("div");
-        cardDiv.className = "card back";
-        botHandDiv.appendChild(cardDiv);
-      }
-
-      // Render your hand (clickable cards)
-      const myHandDiv = document.getElementById("myHand");
-      myHandDiv.innerHTML = "";
-      state.hands[0].forEach((card, i) => {
-        const cardDiv = createCardDiv(card);
-        cardDiv.style.cursor = canPlay(card) && state.turn === 0 ? "pointer" : "default";
-        cardDiv.onclick = () => {
-          if(state.turn === 0 && canPlay(card)) playCard(i);
-        };
-        myHandDiv.appendChild(cardDiv);
-      });
-
-      // Render top card
-      const topCard = document.getElementById("topCard");
-      topCard.className = "card face " + (state.color === "wild" ? "wild" : state.color);
-      topCard.querySelector(".val").textContent = state.current.value;
-
-      // Show/hide UNO tag
-      const youUno = document.getElementById("youUno");
-      youUno.style.display = (state.hands[0].length === 1) ? "inline-block" : "none";
-
-      // Enable/disable buttons based on turn and states
-      document.getElementById("drawBtn").disabled = !(state.turn === 0 && !hasDrawn);
-      document.getElementById("passBtn").disabled = !(state.turn === 0 && hasDrawn && !hasPassed);
-    }
-
-    function updatePenaltyLabel(){
-      document.getElementById("penaltyLabel").textContent = pendingDraw;
-    }
-
-    function createCardDiv(card){
-      const div = document.createElement("div");
-      div.className = "card face " + (card.color === "wild" ? "wild" : card.color);
-      div.innerHTML = `
-        <div class="corner">${card.value}</div>
-        <div class="val">${card.value}</div>
-        <div class="corner bottom">${card.value}</div>
-      `;
-      return div;
-    }
-
-    function capitalize(s){
-      return s.charAt(0).toUpperCase() + s.slice(1);
-    }
-
-    // Color picker modal for wild cards
-    const colorModal = document.getElementById("colorModal");
-    function openColorPicker(callback){
-      colorModal.showModal();
-      function onPick(evt){
-        const color = evt.target.getAttribute("data-color");
-        if(color){
-          callback(color);
-          closePicker();
-        }
-      }
-      function closePicker(){
-        colorModal.close();
-        colorModal.removeEventListener("click", onPick);
-      }
-      colorModal.addEventListener("click", onPick);
-    }
-
-    // Draw and Pass buttons logic
-    document.getElementById("drawBtn").onclick = () => {
-      if(state.turn !== 0 || hasDrawn) return;
-      ensureDeck();
-      if(state.draw.length === 0) return;
-      const card = state.draw.pop();
-      state.hands[0].push(card);
-      hasDrawn = true;
-      render();
-    };
-
-    document.getElementById("passBtn").onclick = () => {
-      if(state.turn !== 0 || !hasDrawn || hasPassed) return;
-      hasPassed = true;
-      nextTurn();
-    };
-
-    // New Game button
-    document.getElementById("newGameBtn").onclick = () => newGame();
-
-    // Check win condition
-    function checkWin(){
-      if(state.hands[0].length === 0){
-        showPopup("🎉 Mahira Win!");
-        return true;
-      }
-      if(state.hands[1].length === 0){
-        showPopup("💥 phone Wins!");
-        return true;
-      }
-      return false;
-    }
-
-    // Show popup on win/loss
-    const endPopup = document.getElementById("endPopup");
-    const popupMessage = document.getElementById("popupMessage");
-    const playAgainBtn = document.getElementById("playAgainBtn");
-
-    function showPopup(msg){
-      popupMessage.textContent = msg;
-      endPopup.style.display = "flex";
-    }
-
-    function hidePopup(){
-      endPopup.style.display = "none";
-    }
-
-    playAgainBtn.onclick = () => {
-      hidePopup();
-      newGame();
-    };
-
-    // Start game on load
-    newGame();
-
-  </script>
+function win(){
+  sndWin.play();
+  popupMsg.textContent="Stage "+stage+" Complete!";
+  popup.style.display="flex";
+}
+function lose(){
+  sndLose.play();
+  popupMsg.textContent="Game Over! Score: "+score;
+  popup.style.display="flex";
+  document.querySelector("#popup button").textContent="Restart";
+}
+function nextStage(){
+  if(score>=target){ stage++; target+=300; }
+  popup.style.display="none";
+  init();
+}
+init();
+</script>
 </body>
+</html>
