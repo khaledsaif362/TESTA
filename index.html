@@ -2,127 +2,119 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Carrom - Datewise Leaderboard</title>
+  <title>Carrom - New Leaderboard Look</title>
   <style>
     body {
-      font-family: 'Nunito', sans-serif;
-      background: linear-gradient(135deg, #141E30, #243B55);
+      font-family: 'Nunito', Arial, sans-serif;
+      background: linear-gradient(115deg, #ffe0c2 0%, #b7bcfb 58%, #ffeaff 100%);
       margin: 0; padding: 0;
-      color: #fff;
     }
     .container {
-      max-width: 1200px;
-      margin: 32px auto 0 auto;
-      border-radius: 28px;
-      background: #f9f9ff;
-      color: #222;
-      box-shadow: 0 10px 46px rgba(0,0,0,0.23);
-      padding-bottom: 38px;
-      width: 96vw;
+      max-width: 1150px;
+      margin: 38px auto 0 auto;
+      border-radius: 39px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: 0 18px 78px #d4d7fd80;
+      color: #293a51;
+      padding-bottom: 36px;
+      min-height: 95vh;
     }
     .header {
-      background: linear-gradient(90deg, #4743ff, #19ffb9);
+      background: linear-gradient(90deg,#fdbb2d 0,#b0b5ff 94%);
       text-align: center;
-      padding: 32px 0 28px 0;
-      font-size: 2.38rem;
+      padding: 38px 0 23px 0;
+      font-size: 2.41rem;
       font-weight: 900;
-      letter-spacing: 2.4px;
-      color: #fff;
-      border-radius: 28px 28px 0 0;
+      letter-spacing: 3.6px;
+      color: #11234e;
+      border-radius: 39px 39px 0 0;
+      text-shadow: 0 5px 18px #ffb77930;
     }
     .input-section {
-      padding: 28px 0 18px 0;
-      background: #eef3ff;
-      border-bottom: 1px solid #ddd;
+      padding: 33px 0 20px 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 11px;
+    }
+    .date-row {
+      margin-bottom: 6px;
+      display: flex; justify-content: center; width: 100%;
+    }
+    .date-group label {
+      font-size: 1.13rem;
+      margin-bottom: 6px;
+      font-weight: 800;
+      color: #6b32f9;
+      letter-spacing: 1px;
+    }
+    .date-group input[type="date"] {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 2.6px solid #ffd278;
+      font-size: 1.12rem;
+      font-weight: 700;
+      background: #fffdee;
+      color: #444;
+      outline: none;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      box-shadow: 0 2px 10px #e9e0ff33;
+      transition: box-shadow .17s;
+    }
+    .date-group input[type="date"]:focus {
+      box-shadow: 0 0 0 3.5px #c9baff;
     }
     .input-row {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 18px;
+      gap: 13px;
       width: 100%;
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-    .date-row {
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-    .date-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 0;
-    }
-    .date-group label {
-      font-size: 1.05rem;
-      margin-bottom: 6px;
-      font-weight: 800;
-      color: #333;
-      letter-spacing: 1px;
-    }
-    .date-group input[type="date"] {
-      padding: 10px 16px;
-      border: 1.8px solid #19ffb9;
-      border-radius: 9px;
-      font-size: 1.09rem;
-      font-weight: 600;
-      background: #f2f7fa;
-    }
-    .rank-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 0;
+      margin: 0;
     }
     .rank-group label {
-      font-size: 1.04rem;
-      margin-bottom: 7px;
-      font-weight: 700;
-      color: #333;
-      letter-spacing: 0.7px;
+      font-size: 1.02rem;
+      font-weight: 900;
+      color: #308bbc;
+      margin-bottom: 6px;
+      margin-left: 5px;
+      letter-spacing: 1px;
     }
     .rank-group select {
-      padding: 9px 12px;
-      border: 1.5px solid #bbb;
-      border-radius: 8px;
-      font-size: 1.09rem;
-      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 13px;
+      border: 2.3px solid #92cffd;
+      font-size: 1.15rem;
+      font-weight: 700;
       background: #f3faff;
-      min-width: 98px;
       text-align: center;
+      min-width: 100px;
+      color: #2861a7;
+      box-shadow: 0 2px 6px #badcff44;
     }
     .add-btn {
-      padding: 18px 35px;
-      background: linear-gradient(90deg, #19ffb9, #4743ff);
+      padding: 16px 35px;
+      background: linear-gradient(90deg, #3ee7ec, #ffc600);
       border: none;
-      border-radius: 14px;
+      border-radius: 23px;
       color: #fff;
       font-weight: 900;
+      font-size: 1.23rem;
+      margin-left: 16px;
+      margin-top: 23px;
+      box-shadow: 0 4px 20px #2bacee33;
+      transition: .26s;
       cursor: pointer;
-      font-size: 1.26rem;
-      letter-spacing: 1px;
-      transition: 0.3s;
-      align-self: center;
-      height: 51px;
-      margin-top: 26px;
-      margin-left: 14px;
-      margin-bottom: 0;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+      letter-spacing: 1.7px;
     }
     .add-btn:hover {
+      background: linear-gradient(90deg,#ffc600,#3ee7ec 98%);
       transform: scale(1.08);
-      background: linear-gradient(90deg, #4743ff 50%, #19ffb9 95%);
     }
     .results-section {
-      padding: 46px 2vw 18px 2vw;
-      max-width: 1100px;
+      padding: 48px 2vw 10px 2vw;
+      max-width: 1020px;
       margin: 0 auto;
     }
     .selector-row {
@@ -130,221 +122,248 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: center;
-      gap: 16px;
+      gap: 15px;
       margin-bottom: 0;
+      margin-top: 0;
     }
     .leader-today-card {
-      background: #fff9ea;
-      padding: 36px 2vw 36px 2vw;
-      border-radius: 26px;
+      background: rgba(255,255,255,0.62);
+      backdrop-filter: blur(15px);
+      padding: 38px 2vw 34px 2vw;
+      border-radius: 50px;
       margin-bottom: 40px;
       text-align: center;
-      position: relative;
-      box-shadow: 0 7px 35px rgba(0,180,60,0.15), 0 5px 26px rgba(255,214,0,0.19);
-      width: 100%;
-      min-width: 350px;
-      max-width: 1100px;
+      box-shadow: 0 6px 45px #ffd27833;
+      min-width: 340px;
+      max-width: 1080px;
       margin-left: auto;
       margin-right: auto;
+      border: 2.6px solid #fef5e6;
     }
     .leader-today-label {
-      color: #12bd4b;
-      background: #e5ffea;
-      font-size: 1.3rem;
+      color: #ee52b8;
+      background: #fff2f6;
+      font-size: 1.41rem;
       font-weight: 900;
-      border-radius: 16px;
-      padding: 10px 23px;
-      letter-spacing: 1.4px;
-      box-shadow: 0 2px 16px rgba(12,160,45,0.13);
-      border: 2.1px solid #0fdd6f;
-      text-shadow: 0 2px 6px #aeeab4;
+      border-radius: 48px;
+      padding: 11px 35px;
+      letter-spacing: 2px;
+      box-shadow: 0 2px 12px #aedeff77;
+      border: none;
+      margin-bottom: 0;
     }
     .leader-select-date {
-      font-size: 1.14rem;
-      color: #11892B;
+      font-size: 1.09rem;
+      color: #973ee5;
       font-weight: bold;
-      letter-spacing: 1.05px;
-      margin-left: 26px;
-      background: #dafbdc;
-      border-radius: 11px;
-      padding: 9px 12px;
-      border: 2px solid #19ffb9;
-      box-shadow: 0 2px 12px #19ffb912;
+      letter-spacing: 1.13px;
+      margin-left: 28px;
+      background: #ebeaff;
+      border-radius: 16px;
+      padding: 11px 18px;
+      border: 2.2px solid #cfa5f9;
+      box-shadow: 0 2px 11px #eeddfa44;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 800;
+      gap: 12px;
+      font-weight: 900;
     }
     .leader-select-date input[type="date"] {
-      margin-left: 10px;
-      padding: 8px 14px;
+      margin-left: 13px;
+      padding: 10px 16px;
       border-radius: 8px;
-      border: 1.7px solid #19ffb9;
-      font-size: 1.11rem;
-      background: #eef3ff;
-      color: #1a2325;
+      border: 1.7px solid #a18cd1;
+      font-size: 1.13rem;
+      background: #f7f9ff;
+      color: #933fe7;
       font-weight: 800;
-      min-width: 125px;
+      min-width: 123px;
+      box-shadow: 0 2px 8px #e5d6fb66 inset;
     }
     #leaderDate {
-      color: #00881B;
-      margin: 26px 0 9px 0;
-      font-size: 1.18rem;
+      color: #b267ee;
+      margin: 28px 0 11px 0;
+      font-size: 1.14rem;
       font-weight: 900;
       letter-spacing: 1.05px;
     }
     .scoreboard {
       display: flex;
       justify-content: center;
-      gap: 42px;
+      gap: 38px;
       flex-wrap: wrap;
-      margin: 36px 0 0 0;
+      margin: 38px 0 0 0;
       width: 100%;
     }
-    .scorebox {
-      background: linear-gradient(135deg, #1ee7a1, #4743ff 82%);
-      color: #fff;
-      padding: 55px 0 44px 0;
-      border-radius: 32px;
-      min-width: 260px;
-      min-height: 215px;
-      max-width: 26vw;
-      text-align: center;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.26);
-      transition: transform 0.32s, background 0.16s;
-      font-size: 1.3rem;
-      margin: 0 10px;
-      font-weight: 900;
-      letter-spacing: 1.2px;
+    .chip-col {
+      max-width: 230px; width: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
-    .scorebox.winner {
-      background: linear-gradient(135deg, #05d03b, #2bc438 88%);
-      color: #fff;
-      border: 5px solid #09ea7c;
-      transform: scale(1.11);
-      font-weight: 900;
-      box-shadow: 0 0 46px #06f35380, 0 1px 14px #03c84855;
-      font-size: 1.44rem;
-      z-index: 3;
-    }
-    .scorebox.winner .circle {
-      background: #10eb52;
-      color: #fff;
-      border: 3px solid #eaffea;
-      font-size: 2.8rem !important;
-      font-weight: 900;
-      text-shadow: 0 3px 12px #0eee3899;
-      box-shadow: 0 7px 28px #00f36b66;
-    }
-    .scorebox .circle {
-      width: 86px;
-      height: 86px;
-      background: #ffffff;
-      color: #4743ff;
-      font-weight: 900;
-      font-size: 2.13rem;
+    .player-avatar {
+      width: 110px;
+      height: 110px;
       border-radius: 50%;
+      background: #fad3ff;
+      box-shadow: 0 0 0 6px #ffc600, 0 2px 24px #7a59d4aa;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 22px;
-      margin-top: 2px;
-      border: 4px solid #19ffb9;
-      box-shadow: 0 2px 13px #19ffb944;
-      letter-spacing: 0;
-    }
-    .scorebox .name {
-      font-size: 1.42rem;
+      align-items: center; justify-content: center;
+      font-size: 2.8rem;
       font-weight: 900;
-      letter-spacing: 1.32px;
-      margin-bottom: 8px;
-      margin-top: 4px;
+      color: #fff;
+      border: none;
+      margin-bottom: 18px;
+      margin-top: 9px;
+      position: relative;
+      transition: 0.14s transform;
     }
-    .scorebox .score {
-      font-size: 3.0rem;
+    .chip-col.winner .player-avatar {
+      background: linear-gradient(135deg,#ffc600 45%,#ff79ca 100%);
+      box-shadow: 0 0 0 7.3px #aac8fd, 0 0 50px #ffb80088;
+      color: #fff; border: none;
+      font-size: 3.2rem;
+      animation: trophyBump 1.6s infinite alternate;
+    }
+    @keyframes trophyBump {
+      10% { transform: scale(1.06);}
+      20% { transform: scale(0.99);}
+      90%,100%{ transform:scale(1.15);}
+    }
+    .player-name {
+      font-size: 1.32rem;
       font-weight: 900;
-      letter-spacing: 2.9px;
-      margin-top: 10px;
-      line-height: 1;
+      margin: 0 0 5px 0;
+      letter-spacing: 1.3px;
+      color: #4b2daa;
+    }
+    .chip-col.winner .player-name {
+      color: #ff52c0;
+      text-shadow: 0 2px 14px #fa7fd84d;
+    }
+    .floating-score {
+      background: #fff;
+      color: #b42edd;
+      font-weight: 900;
+      padding: 11px 34px;
+      border-radius: 24px;
+      font-size: 2.35rem;
+      letter-spacing: 2px;
+      margin-top: 3px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 17px #c6b8f9cc;
+      border: 2px solid #ffe5c7;
+      display: inline-block;
+    }
+    .chip-col.winner .floating-score {
+      background: #fff4d0;
+      color: #df84ff;
+      border: 2.9px solid #ffd420;
+      font-size: 2.4rem;
+      letter-spacing: 2.8px;
+      box-shadow: 0 2px 24px #ffd42099;
+      position: relative;
+    }
+    .chip-col.winner .trophy {
+      position: absolute;
+      top: -24px;
+      left: 45%;
+      font-size: 2.1rem;
+      transform: translateX(-56%);
+      z-index: 4;
+      text-shadow: 0 2px 9px #fdc300bb;
+      animation: trophySpin 2.1s infinite linear;
+    }
+    @keyframes trophySpin {
+      0% { transform:translateX(-56%) rotate(-10deg);}
+      50% { transform:translateX(-56%) rotate(18deg);}
+      100% { transform:translateX(-56%) rotate(-10deg);}
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 35px;
-      background: #fff;
-      font-size: 1.18rem;
-      border-radius: 13px;
+      margin-top: 30px;
+      background: rgba(244,246,255,0.92);
+      font-size: 1.15rem;
+      border-radius: 18px;
       overflow: hidden;
       font-weight: bold;
+      box-shadow: 0 4px 46px #efc2fd26,0 9px 27px #f7eaff19;
     }
     thead {
-      background: #4743ff;
-      color: #fff;
-      font-size: 1.2rem;
-      letter-spacing: 1.1px;
+      background: #fdf1b4;
+      color: #a31bc4;
+      font-size: 1.14rem;
+      letter-spacing: 1.04px;
+      font-weight: 700;
     }
     th, td {
-      padding: 13px;
+      padding: 13px 4px;
       text-align: center;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #e3cdff;
     }
     tr:hover {
-      background: #f6faff;
+      background: #fceaff;
     }
     .winner-cell {
-      background: #13de6a !important; color: #fff; font-weight: 900 !important;
-      padding: 7px 16px;
-      border-radius: 10px;
-      box-shadow: 0 2px 14px #19ffb966;
-      letter-spacing: 1.5px;
-      font-size: 1.18rem;
+      background: linear-gradient(90deg,#ff70c1,#fbc531 95%) !important;
+      color: #fff !important;
+      font-weight: 900 !important;
+      padding: 7px 15px;
+      border-radius: 13px;
+      letter-spacing: 1.4px;
+      font-size:1.12rem;
+      border: 2.2px solid #ffe0ae;
+      display: inline-block;
+      box-shadow: 0 2px 7px #9d45e988;
     }
     .fab {
       position: fixed;
       bottom: 28px;
       right: 28px;
-      background: linear-gradient(135deg, #4743ff, #19ffb9);
+      background: linear-gradient(135deg,#faadff,#fbc531 90%);
       color: #fff;
       border: none;
       border-radius: 50%;
       width: 64px;
       height: 64px;
       font-size: 2rem;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      box-shadow: 0 8px 26px #f7aeff88, 0 2px 8px #ffd27899;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: 0.3s;
+      transition: .24s;
+      z-index: 10;
     }
     .fab:hover {
-      transform: scale(1.1) rotate(10deg);
+      background: linear-gradient(135deg, #fbc531 10%, #faadff 90%);
+      color: #fa0bbd;
+      transform: scale(1.12) rotate(-14deg);
     }
-    @media (max-width:1100px) {
-      .scorebox { min-width: 140px; max-width: 99vw; padding: 22px; }
-      .leader-today-card { padding: 18px 4vw; }
-      .results-section { padding: 8px 0 0 0;}
-      .input-section { padding: 18px 0 10px 0;}
+    @media (max-width:940px) {
+      .scoreboard { flex-wrap: wrap; gap: 18px;}
+      .container { padding-bottom:10px;}
+      .chip-col { min-width: 126px; max-width:190px;}
+      .player-avatar {width: 86px;height:86px;font-size:2rem;}
+      .floating-score{font-size:1.5rem;padding:10px 17px}
     }
     @media (max-width:700px) {
-      .scoreboard { gap: 9px;}
-      .results-section { padding: 7px 2vw;}
-      .leader-today-card {padding: 10px 1vw 16px 1vw;}
-      .input-row, .date-row { flex-direction: column; gap: 5px;}
+      .selector-row{gap:7px;}
+      .results-section { padding: 6px 3vw;}
+      .leader-today-card{padding:6px 1vw 4px 1vw;}
+      .scoreboard {gap: 7px;}
+      .chip-col{min-width: 90px;max-width:117px;}
     }
   </style>
 </head>
-<body><br><br><br><br><br>
+<body>
   <div class="container">
-    <div class="header">🎯 Carrom - Datewise Leaderboard</div>
+    <div class="header">🏅 UNO Game</div>
     <div class="input-section">
       <div class="date-row">
         <div class="date-group">
-          <label for="gameDate">Date
+          <label for="gameDate">Date</label>
           <input type="date" id="gameDate" required>
         </div>
       </div>
@@ -363,17 +382,20 @@
         <div class="selector-row">
           <span class="leader-today-label">LEADERBOARD</span>
           <span class="leader-select-date">
-          
+            
             <input type="date" id="selectDate">
           </span>
         </div>
         <div id="leaderDate"></div>
         <div id="todayScoreboard" class="scoreboard"></div>
       </div>
-      <h2 style="margin-top:44px;margin-bottom:8px;font-size:1.46rem;">Game History</h2>
+      <h2 style="margin-top:38px;margin-bottom:9px;font-size:1.31rem;color:#9d4cd1;text-shadow:0 1px 7px #fdeaff;">Game History</h2>
       <table id="gamesTable">
         <thead>
-          <tr><th>#</th><th>Date</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>6th</th></tr>
+          <tr>
+            <th>#</th><th>Date</th>
+            <th>1st</th><th>2nd</th><th>3rd</th><th>4th</th><th>5th</th><th>6th</th>
+          </tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -387,9 +409,7 @@
       harsh:"Harsh", laxman:"Laxman", hemant:"Hemant"
     };
     const selectIds = ["rank1","rank2","rank3","rank4","rank5","rank6"];
-    let games = JSON.parse(localStorage.getItem('carromTodayLeaderboardOnly')) || [];
-
-    // populate players in dropdowns
+    let games = JSON.parse(localStorage.getItem('carromLeaderboardChips')) || [];
     function populatePlayers() {
       selectIds.forEach(id => {
         let sel = document.getElementById(id);
@@ -414,12 +434,13 @@
       const maxScore = entries.length ? entries[0][1] : 0;
       let html="";
       entries.forEach(([p,total])=>{
-        let isWinner = (total===maxScore && maxScore>0);
-        html+=`<div class="scorebox${isWinner?' winner':''}">
-                 <div class="circle">${names[p][0]}</div>
-                 <div class="name">${names[p]}</div>
-                 <div class="score">${total}</div>
-               </div>`;
+        let isWinner = (total === maxScore && maxScore > 0);
+        html+=`
+        <div class="chip-col${isWinner?' winner':''}">
+          <span class="player-avatar">${isWinner ? '<span class="trophy">🏆</span>' : ''}${names[p][0]}</span>
+          <div class="player-name">${names[p]}</div>
+          <div class="floating-score">${total}</div>
+        </div>`;
       });
       document.getElementById(containerId).innerHTML = html;
     }
@@ -434,9 +455,9 @@
       let dateGames = games.filter(g=>g.date===dateVal);
       renderScoreboard("todayScoreboard", getTotals(dateGames));
       const tbody = document.querySelector("#gamesTable tbody");
-      tbody.innerHTML="";
+      tbody.innerHTML = "";
       games.forEach((game,idx)=>{
-        let tds="";
+        let tds = "";
         for(let i=1;i<=6;i++){
           let val = game["rank"+i];
           let cell = names[val]||"-";
@@ -462,7 +483,7 @@
       }
       if(Object.keys(chosen).length<=1){ alert("Pick at least one rank"); return;}
       games.push(chosen);
-      localStorage.setItem('carromTodayLeaderboardOnly', JSON.stringify(games));
+      localStorage.setItem('carromLeaderboardChips', JSON.stringify(games));
       updateAll();
       document.querySelectorAll(".input-section select").forEach(s=>s.value="");
     }
